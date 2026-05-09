@@ -69,7 +69,7 @@ if st.sidebar.button("🔄 초기화"):
     st.rerun()
 
 all_strategies = ["Level Production (평준화)", "Chase Demand (추종)", "Mixed (최적화)", "Overtime-Only (초과근무)"]
-# ✅ Fix: selected_strategies를 함수 인자로 전달해 캐시가 올바르게 무효화되도록 수정
+# Fix: selected_strategies를 함수 인자로 전달해 캐시가 올바르게 무효화되도록 수정
 selected_strategies = st.sidebar.multiselect("전략 선택", all_strategies, default=all_strategies)
 
 # ── Main ─────────────────────────────────────────────
@@ -139,10 +139,6 @@ def compute_strategies(params, selected):
         }
 
     # ── Strategy 3: Mixed (MILP) ───────────────────────
-    # ✅ Fix: 부재 변수(B) 제거 + 재고균형을 I_t = I_{t-1} + P_t - D_t 로 단순화
-    # I_v의 lowBound=0 이 I >= 0 을 강제 → 부재를 허용하지 않음
-    # 기존 코드는 부재비(5)가 노동비(640/인)보다 훨씬 싸서
-    # LP가 "사람 다 해고 + 부재 무한 누적"을 최적해로 선택하는 버그 발생
     if "Mixed (최적화)" in selected:
         prob = pulp.LpProblem("APP_MILP", pulp.LpMinimize)
 
