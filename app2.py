@@ -39,7 +39,7 @@ if 'reset_key' not in st.session_state:
     st.session_state.reset_key = 0
 
 # ── Sidebar ──────────────────────────────────────────
-st.sidebar.title("📋 파라미터 설정")
+st.sidebar.title("파라미터 설정")
 
 # ✅ rk를 number_input보다 먼저 선언 (NameError 수정)
 rk = st.session_state.reset_key
