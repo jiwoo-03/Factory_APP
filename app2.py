@@ -41,7 +41,6 @@ if 'reset_key' not in st.session_state:
 # ── Sidebar ──────────────────────────────────────────
 st.sidebar.title("파라미터 설정")
 
-# ✅ rk를 number_input보다 먼저 선언 (NameError 수정)
 rk = st.session_state.reset_key
 
 if st.sidebar.button("🔄 초기화"):
@@ -463,44 +462,4 @@ with tab4:
             total_back = sum(float(np.sum(d['B'])) for d in results.values() if d is not None)
             st.metric("총부재", f"{total_back:,.0f} 단위")
 
-# ── Formulas Expander ─────────────────────────────────
-with st.expander("📐 수식 및 계산 로직 보기"):
-    st.markdown("""
-### 주요 수식
 
-**재고 균형 (Mixed 전략 — 부재 없음):**
-```
-I_t = I_{t-1} + P_t - D_t   (I_t ≥ 0 강제)
-```
-
-**재고 균형 (휴리스틱 전략 — 부재 허용):**
-```
-I_t = max(0, I_{t-1} + P_t - D_t)
-B_t = max(0, D_t - I_{t-1} - P_t)
-```
-
-**인력 균형:**
-```
-W_t = W_{t-1} + H_t - F_t
-```
-
-**정규 용량 제약:**
-```
-P_t × s ≤ W_t × d × r + O_t
-```
-
-**초과근무 한계:**
-```
-O_t ≤ W_t × OT_max
-```
-
-**월별 비용:**
-```
-비용 = 정규노동비 + 초과노동비 + 채용비 + 해고비 + 재고보유비 + 부재비 + 재료비
-```
-
-**서비스 레벨:**
-```
-서비스레벨% = (부재 없는 월 수 / 총 월 수) × 100
-```
-    """)
