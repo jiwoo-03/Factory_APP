@@ -34,6 +34,9 @@ DEFAULT_PARAMS = {
 
 if 'params' not in st.session_state:
     st.session_state.params = DEFAULT_PARAMS.copy()
+# reset_key: 초기화 버튼을 누를 때마다 1씩 증가 → 위젯 key가 바뀌어 강제 재생성
+if 'reset_key' not in st.session_state:
+    st.session_state.reset_key = 0
 
 # ── Sidebar ──────────────────────────────────────────
 st.sidebar.title("📋 파라미터 설정")
@@ -41,35 +44,39 @@ st.sidebar.title("📋 파라미터 설정")
 st.sidebar.subheader("수요 예측 (Jan–Jun)")
 demand = []
 for i, month in enumerate(['1월', '2월', '3월', '4월', '5월', '6월']):
-    demand.append(st.sidebar.number_input(f"{month} 수요", value=st.session_state.params['demand'][i], min_value=0, step=100))
+    demand.append(st.sidebar.number_input(f"{month} 수요", value=st.session_state.params['demand'][i], min_value=0, step=100, key=f"demand_{i}_{rk}"))
 st.session_state.params['demand'] = demand
 
 st.sidebar.subheader("비용 및 용량 파라미터")
 cols = st.sidebar.columns(2)
 with cols[0]:
-    st.session_state.params['p']   = st.sidebar.number_input("판매가격 (천원/단위)",      value=float(st.session_state.params['p']),   min_value=0.0, step=1.0)
-    st.session_state.params['m']   = st.sidebar.number_input("재료비 (천원/단위)",         value=float(st.session_state.params['m']),   min_value=0.0, step=1.0)
-    st.session_state.params['h']   = st.sidebar.number_input("재고보유비 (천원/단위/월)",  value=float(st.session_state.params['h']),   min_value=0.0, step=0.1)
-    st.session_state.params['b']   = st.sidebar.number_input("부재비 (천원/단위/월)",      value=float(st.session_state.params['b']),   min_value=0.0, step=0.1)
-    st.session_state.params['I0']  = st.sidebar.number_input("초기재고 (단위)",            value=st.session_state.params['I0'],         min_value=0,   step=100)
-    st.session_state.params['I6']  = st.sidebar.number_input("최종재고 (단위)",            value=st.session_state.params['I6'],         min_value=0,   step=100)
+    st.session_state.params['p']   = st.sidebar.number_input("판매가격 (천원/단위)",      value=float(st.session_state.params['p']),   min_value=0.0, step=1.0,  key=f"p_{rk}")
+    st.session_state.params['m']   = st.sidebar.number_input("재료비 (천원/단위)",         value=float(st.session_state.params['m']),   min_value=0.0, step=1.0,  key=f"m_{rk}")
+    st.session_state.params['h']   = st.sidebar.number_input("재고보유비 (천원/단위/월)",  value=float(st.session_state.params['h']),   min_value=0.0, step=0.1,  key=f"h_{rk}")
+    st.session_state.params['b']   = st.sidebar.number_input("부재비 (천원/단위/월)",      value=float(st.session_state.params['b']),   min_value=0.0, step=0.1,  key=f"b_{rk}")
+    st.session_state.params['I0']  = st.sidebar.number_input("초기재고 (단위)",            value=st.session_state.params['I0'],         min_value=0,   step=100,  key=f"I0_{rk}")
+    st.session_state.params['I6']  = st.sidebar.number_input("최종재고 (단위)",            value=st.session_state.params['I6'],         min_value=0,   step=100,  key=f"I6_{rk}")
 with cols[1]:
-    st.session_state.params['W0']     = st.sidebar.number_input("초기인력 (명)",            value=st.session_state.params['W0'],            min_value=0,   step=1)
-    st.session_state.params['cr']     = st.sidebar.number_input("정규임금 (천원/시간)",     value=float(st.session_state.params['cr']),     min_value=0.0, step=0.1)
-    st.session_state.params['co']     = st.sidebar.number_input("초과임금 (천원/시간)",     value=float(st.session_state.params['co']),     min_value=0.0, step=0.1)
-    st.session_state.params['ch']     = st.sidebar.number_input("채용비 (천원/명)",         value=st.session_state.params['ch'],            min_value=0,   step=10)
-    st.session_state.params['cf']     = st.sidebar.number_input("해고비 (천원/명)",         value=st.session_state.params['cf'],            min_value=0,   step=10)
-    st.session_state.params['d']      = st.sidebar.number_input("월근무일수 (일)",          value=st.session_state.params['d'],             min_value=1,   step=1)
-    st.session_state.params['r']      = st.sidebar.number_input("일정규시간 (시간)",        value=float(st.session_state.params['r']),      min_value=1.0, step=0.5)
-    st.session_state.params['OT_max'] = st.sidebar.number_input("최대초과시간 (시간/명/월)",value=float(st.session_state.params['OT_max']), min_value=0.0, step=1.0)
-    st.session_state.params['s']      = st.sidebar.number_input("단위생산시간 (시간/단위)", value=float(st.session_state.params['s']),      min_value=0.1, step=0.1)
+    st.session_state.params['W0']     = st.sidebar.number_input("초기인력 (명)",            value=st.session_state.params['W0'],            min_value=0,   step=1,    key=f"W0_{rk}")
+    st.session_state.params['cr']     = st.sidebar.number_input("정규임금 (천원/시간)",     value=float(st.session_state.params['cr']),     min_value=0.0, step=0.1,  key=f"cr_{rk}")
+    st.session_state.params['co']     = st.sidebar.number_input("초과임금 (천원/시간)",     value=float(st.session_state.params['co']),     min_value=0.0, step=0.1,  key=f"co_{rk}")
+    st.session_state.params['ch']     = st.sidebar.number_input("채용비 (천원/명)",         value=st.session_state.params['ch'],            min_value=0,   step=10,   key=f"ch_{rk}")
+    st.session_state.params['cf']     = st.sidebar.number_input("해고비 (천원/명)",         value=st.session_state.params['cf'],            min_value=0,   step=10,   key=f"cf_{rk}")
+    st.session_state.params['d']      = st.sidebar.number_input("월근무일수 (일)",          value=st.session_state.params['d'],             min_value=1,   step=1,    key=f"d_{rk}")
+    st.session_state.params['r']      = st.sidebar.number_input("일정규시간 (시간)",        value=float(st.session_state.params['r']),      min_value=1.0, step=0.5,  key=f"r_{rk}")
+    st.session_state.params['OT_max'] = st.sidebar.number_input("최대초과시간 (시간/명/월)",value=float(st.session_state.params['OT_max']), min_value=0.0, step=1.0,  key=f"OT_max_{rk}")
+    st.session_state.params['s']      = st.sidebar.number_input("단위생산시간 (시간/단위)", value=float(st.session_state.params['s']),      min_value=0.1, step=0.1,  key=f"s_{rk}")
 
 if st.sidebar.button("🔄 초기화"):
     st.session_state.params = DEFAULT_PARAMS.copy()
+    st.session_state.reset_key += 1  # 위젯 key 변경 → 위젯 강제 재생성
     st.rerun()
 
+# 위젯 key 접미사 — 초기화할 때마다 바뀌어 number_input이 기본값으로 새로 렌더링됨
+rk = st.session_state.reset_key
+
 all_strategies = ["Level Production (평준화)", "Chase Demand (추종)", "Mixed (최적화)", "Overtime-Only (초과근무)"]
-# Fix: selected_strategies를 함수 인자로 전달해 캐시가 올바르게 무효화되도록 수정
+# ✅ Fix: selected_strategies를 함수 인자로 전달해 캐시가 올바르게 무효화되도록 수정
 selected_strategies = st.sidebar.multiselect("전략 선택", all_strategies, default=all_strategies)
 
 # ── Main ─────────────────────────────────────────────
@@ -139,6 +146,10 @@ def compute_strategies(params, selected):
         }
 
     # ── Strategy 3: Mixed (MILP) ───────────────────────
+    # ✅ Fix: 부재 변수(B) 제거 + 재고균형을 I_t = I_{t-1} + P_t - D_t 로 단순화
+    # I_v의 lowBound=0 이 I >= 0 을 강제 → 부재를 허용하지 않음
+    # 기존 코드는 부재비(5)가 노동비(640/인)보다 훨씬 싸서
+    # LP가 "사람 다 해고 + 부재 무한 누적"을 최적해로 선택하는 버그 발생
     if "Mixed (최적화)" in selected:
         prob = pulp.LpProblem("APP_MILP", pulp.LpMinimize)
 
