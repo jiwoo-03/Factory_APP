@@ -146,10 +146,6 @@ def compute_strategies(params, selected):
         }
 
     # ── Strategy 3: Mixed (MILP) ───────────────────────
-    # ✅ Fix: 부재 변수(B) 제거 + 재고균형을 I_t = I_{t-1} + P_t - D_t 로 단순화
-    # I_v의 lowBound=0 이 I >= 0 을 강제 → 부재를 허용하지 않음
-    # 기존 코드는 부재비(5)가 노동비(640/인)보다 훨씬 싸서
-    # LP가 "사람 다 해고 + 부재 무한 누적"을 최적해로 선택하는 버그 발생
     if "Mixed (최적화)" in selected:
         prob = pulp.LpProblem("APP_MILP", pulp.LpMinimize)
 
