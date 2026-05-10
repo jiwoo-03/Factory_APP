@@ -41,6 +41,14 @@ if 'reset_key' not in st.session_state:
 # ── Sidebar ──────────────────────────────────────────
 st.sidebar.title("📋 파라미터 설정")
 
+# ✅ rk를 number_input보다 먼저 선언 (NameError 수정)
+rk = st.session_state.reset_key
+
+if st.sidebar.button("🔄 초기화"):
+    st.session_state.params = DEFAULT_PARAMS.copy()
+    st.session_state.reset_key += 1
+    st.rerun()
+
 st.sidebar.subheader("수요 예측 (Jan–Jun)")
 demand = []
 for i, month in enumerate(['1월', '2월', '3월', '4월', '5월', '6월']):
@@ -67,13 +75,6 @@ with cols[1]:
     st.session_state.params['OT_max'] = st.sidebar.number_input("최대초과시간 (시간/명/월)",value=float(st.session_state.params['OT_max']), min_value=0.0, step=1.0,  key=f"OT_max_{rk}")
     st.session_state.params['s']      = st.sidebar.number_input("단위생산시간 (시간/단위)", value=float(st.session_state.params['s']),      min_value=0.1, step=0.1,  key=f"s_{rk}")
 
-if st.sidebar.button("🔄 초기화"):
-    st.session_state.params = DEFAULT_PARAMS.copy()
-    st.session_state.reset_key += 1  # 위젯 key 변경 → 위젯 강제 재생성
-    st.rerun()
-
-# 위젯 key 접미사 — 초기화할 때마다 바뀌어 number_input이 기본값으로 새로 렌더링됨
-rk = st.session_state.reset_key
 
 all_strategies = ["Level Production (평준화)", "Chase Demand (추종)", "Mixed (최적화)", "Overtime-Only (초과근무)"]
 # ✅ Fix: selected_strategies를 함수 인자로 전달해 캐시가 올바르게 무효화되도록 수정
